@@ -11,7 +11,8 @@ class Interview(db.Document):
 
 class InterviewAnnotation(db.Document):
     sessionID = db.StringField(required=True)
-    timestamp = db.DateTimeField()
+    secondStart = db.FloatField()
+    secondEnd = db.FloatField()
     transcript = db.StringField()
     annotation = db.StringField()
     feedback = db.StringField()

@@ -4,7 +4,7 @@ import datetime
 class Interview(db.Document):
     sessionID = db.StringField(required=True, unique=True)
     username_interviewer = db.StringField()
-    username_interviewee = db.StringField(required=True, unique=True)
+    username_interviewee = db.StringField(required=True)
     date = db.DateTimeField(default=datetime.datetime.utcnow)
     transcript_link = db.StringField()
     video_link = db.StringField()
@@ -16,3 +16,4 @@ class InterviewAnnotation(db.Document):
     transcript = db.StringField()
     annotation = db.StringField()
     feedback = db.StringField()
+    question = db.StringField()

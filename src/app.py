@@ -7,6 +7,10 @@ from routes.interviews import interviews_bp
 from routes.feedbacks import feedbacks_bp
 
 from database.db import initialize_db
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)

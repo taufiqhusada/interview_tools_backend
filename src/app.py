@@ -5,6 +5,7 @@ import os
 from routes.interview_annotations import annotations_bp
 from routes.interviews import interviews_bp
 from routes.feedbacks import feedbacks_bp
+from routes.repetition import repetition_bp
 
 from database.db import initialize_db
 from dotenv import load_dotenv
@@ -23,5 +24,6 @@ def hello_world():
 app.register_blueprint(interviews_bp)
 app.register_blueprint(annotations_bp)
 app.register_blueprint(feedbacks_bp)
+app.register_blueprint(repetition_bp)
 
 

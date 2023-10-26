@@ -9,6 +9,11 @@ class Interview(db.Document):
     transcript_link = db.StringField()
     video_link = db.StringField()
 
+class ChatMessageEmbedded(db.EmbeddedDocument):
+    text = db.StringField()
+    sender = db.StringField()
+    isTyping = db.BooleanField()
+
 class InterviewAnnotation(db.Document):
     sessionID = db.StringField(required=True)
     secondStart = db.FloatField()
@@ -17,3 +22,4 @@ class InterviewAnnotation(db.Document):
     annotation = db.StringField()
     feedback = db.StringField()
     question = db.StringField()
+    chatMessages = db.ListField(db.EmbeddedDocumentField(ChatMessageEmbedded))

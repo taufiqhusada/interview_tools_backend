@@ -10,8 +10,8 @@ class Interview(db.Document):
     video_link = db.StringField()
 
 class ChatMessageEmbedded(db.EmbeddedDocument):
-    text = db.StringField()
-    sender = db.StringField()
+    content = db.StringField()
+    role = db.StringField()
     isTyping = db.BooleanField()
 
 class InterviewAnnotation(db.Document):

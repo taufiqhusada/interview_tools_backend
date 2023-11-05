@@ -2,7 +2,7 @@
 from flask import Blueprint, request, jsonify
 from util.response import  convert_to_json_resp
 from config.openai_connector import init_openai_config
-
+import os
 
 feedbacks_bp = Blueprint('feedbacks', __name__)
 
@@ -23,7 +23,7 @@ def get_feedback():
     openai = init_openai_config()
 
     response = openai.ChatCompletion.create(
-    model="gpt-4",
+    model=os.getenv('OPENAI_GPT_MODEL'),
     messages=[
         {
         "role": "user",
@@ -43,7 +43,7 @@ def do_conversation():
     openai = init_openai_config()
 
     response = openai.ChatCompletion.create(
-        model="gpt-4",
+        model=os.getenv('OPENAI_GPT_MODEL'),
         messages=data['messages']
     )
 

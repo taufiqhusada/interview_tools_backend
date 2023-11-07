@@ -29,8 +29,6 @@ def do_conversation():
 
     messages += data['messages'] # append user messages
 
-    print(messages)
-
     response = openai.ChatCompletion.create(
         model=os.getenv('OPENAI_GPT_MODEL'),
         messages=messages

@@ -16,16 +16,14 @@ def do_conversation():
     transcript = data['transcript']
     comment = data['comment']
 
-    prompt = f"""Your task is to answer the conversation based on video transcript of an interview, and comment. Make sure your answer is concise and providing key points. 
+    prompt = f"""Your task is to answer the conversation based on video transcript of an interview, and comment. Ensure the response is concise and provides key points. If the interview transcript pertains to behavioral questions, use the STAR method to organize your improvements. For other questions like the introduction please don’t use the STAR method. Do not exceed 200 words. Format your answer in a HTML format
                 Transcript: ```{transcript}```
                 Comment: ```{comment}```"""
 
-    messages = [
-        {
+    messages = [{
         "role": "system",
         "content": prompt
-        },
-    ]
+        }]
 
     messages += data['messages'] # append user messages
 
@@ -35,4 +33,5 @@ def do_conversation():
     )
 
     response = response["choices"][0]["message"]["content"]
+    print(response)
     return convert_to_json_resp(response)

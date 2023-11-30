@@ -13,6 +13,7 @@ class ChatMessageEmbedded(db.EmbeddedDocument):
     content = db.StringField()
     role = db.StringField()
     isTyping = db.BooleanField()
+    meta = {'strict': False}
 
 class InterviewAnnotation(db.Document):
     sessionID = db.StringField(required=True)

@@ -36,5 +36,4 @@ def do_conversation():
     )
 
     response = response["choices"][0]["message"]["content"]
-    print(response)
     return convert_to_json_resp(response)

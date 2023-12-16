@@ -24,3 +24,7 @@ class InterviewAnnotation(db.Document):
     feedback = db.StringField()
     question = db.StringField()
     chatMessages = db.ListField(db.EmbeddedDocumentField(ChatMessageEmbedded))
+
+class InterviewTranscript(db.Document):
+    sessionID = db.StringField(required=True, unique=True)
+    transcript = db.DynamicField()

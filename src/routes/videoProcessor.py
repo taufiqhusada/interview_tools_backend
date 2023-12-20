@@ -34,7 +34,7 @@ def merge_audio_video():
         filter_complex_str = ''
         audio_inputs = ''
         for i, audio_file in enumerate(request.files.getlist('audio')):
-            audio_filename = os.path.join(temp_dir, f'audio_{i}.mp3')
+            audio_filename = os.path.join(temp_dir, f'audio_{i}.m4a')
             audio_file.save(audio_filename)
 
             print(audio_filename)
@@ -56,11 +56,13 @@ def merge_audio_video():
             '-filter_complex', filter_complex,
             '-map', '0:v:0',
             '-map', '[aout]',
-            '-c:v', 'copy',
+            '-c:v', 'libx264',  # Re-encode the video using H.264 codec
+            '-preset', 'medium',  
             '-y',
             output_filename
         ]
 
+        print(cmd)
         subprocess.run(cmd, check=True)
 
         # Return the merged video file as a response
@@ -71,7 +73,7 @@ def merge_audio_video():
 
         # Clean up temporary files and directory
         for i in range(len(request.files.getlist('audio'))):
-            os.remove(os.path.join(temp_dir, f'audio_{i}.mp3'))
+            os.remove(os.path.join(temp_dir, f'audio_{i}.m4a'))
         os.rmdir(temp_dir)
 
         os.remove('output.mp4')

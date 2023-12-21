@@ -29,7 +29,7 @@ def do_conversation():
 
     messages += data['messages'] # append user messages
 
-    response = openai.ChatCompletion.create(
+    response = openai.chat.completions.create(
         model=os.getenv('OPENAI_GPT_MODEL'),
         messages=messages,
         temperature=0,

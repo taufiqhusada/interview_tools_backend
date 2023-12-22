@@ -17,18 +17,20 @@ video_processor_bp = Blueprint('video_processor', __name__)
 def merge_audio_video():
     try:
         # Get the uploaded video file from the request
-        video_file = request.files['video']
+        user_audio = request.files['user_audio']
+
+        print("user_audio.filename", user_audio.filename)
 
         # Check if the video file is present
-        if not video_file:
-            return convert_to_json_resp({"error": "Video file is required."}), 400
+        if not user_audio:
+            return convert_to_json_resp({"error": "user_audio file is required."}), 400
 
         # Save the uploaded video file to the server
-        video_filename = 'video.mp4'
-        video_file.save(video_filename)
+        user_audio_filename = 'user_audio.webm'
+        user_audio.save(user_audio_filename)
 
         # Define the output video filename
-        output_filename = 'output.mp4'
+        output_filename = 'output.mp3'
 
         # Create a temporary directory to store the audio files
         temp_dir = tempfile.mkdtemp()
@@ -55,29 +57,13 @@ def merge_audio_video():
         filter_complex_str += '[0:a]' + ''.join([f'[a{i+1}]' for i in range(len(request.files.getlist('audio')))])
         filter_complex = f'{filter_complex_str}amix=inputs={len(request.files.getlist("audio")) + 1}:duration=first[aout]'
 
-        # Compress the video using H.264 codec and set a specific bitrate
-        cmd_compress = [
-            'ffmpeg',
-            '-i', video_filename,
-            '-c:v', 'libx264',          # Video codec
-            '-b:v', '512K',             # Target video bitrate (adjust as needed)
-            '-preset', 'ultrafast',     # Faster compression
-            '-strict', 'experimental',  # Needed for AAC audio codec
-            '-y',
-            'compressed_video.mp4'     # Output compressed video
-        ]
-
-        subprocess.run(cmd_compress, check=True)
-
         cmd = [
             'ffmpeg',
-            '-i', 'compressed_video.mp4',
+            '-i', user_audio_filename,
             *audio_inputs.split(),
             '-filter_complex', filter_complex,
-            '-map', '0:v:0',
             '-map', '[aout]',
-            '-c:v', 'libx264',  # Re-encode the video using H.264 codec
-            '-preset', 'medium',  
+            '-c:v', 'copy', 
             '-y',
             output_filename
         ]
@@ -90,14 +76,13 @@ def merge_audio_video():
             os.remove(os.path.join(temp_dir, f'audio_{i}.m4a'))
         os.rmdir(temp_dir)
 
-        video_url = upload_to_firebase('output.mp4')
-        print(video_url)
+        merged_audio_url = upload_to_firebase(output_filename)
+        print(merged_audio_url)
 
-        os.remove('compressed_video.mp4')
-        os.remove('output.mp4')
-        os.remove('video.mp4')
+        os.remove(output_filename)
+        os.remove(user_audio_filename)
 
-        return convert_to_json_resp({'url': video_url})
+        return convert_to_json_resp({'url': merged_audio_url})
 
 
     except Exception as e:
@@ -110,7 +95,7 @@ def upload_to_firebase(filename):
     bucket = storage.bucket()
 
     # Upload the merged video to Firebase Storage
-    blob = bucket.blob(f'videos/interview/{str(uuid.uuid4())}')
+    blob = bucket.blob(f'mergedAudios/interview/{str(uuid.uuid4())}')
     blob.upload_from_filename(filename)
 
     # Generate a signed URL for the uploaded video

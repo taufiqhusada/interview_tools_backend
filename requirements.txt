@@ -6,3 +6,4 @@ flask_mongoengine
 python-dotenv
 Werkzeug==2.2.2
 gunicorn
+firebase_admin

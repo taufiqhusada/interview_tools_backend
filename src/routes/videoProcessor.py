@@ -5,6 +5,12 @@ import tempfile
 import os
 import json
 
+import firebase_admin
+from firebase_admin import credentials, storage
+import datetime
+import uuid
+
+
 video_processor_bp = Blueprint('video_processor', __name__)
 
 @video_processor_bp.route('/video/merge', methods=['POST'])
@@ -49,9 +55,23 @@ def merge_audio_video():
         filter_complex_str += '[0:a]' + ''.join([f'[a{i+1}]' for i in range(len(request.files.getlist('audio')))])
         filter_complex = f'{filter_complex_str}amix=inputs={len(request.files.getlist("audio")) + 1}:duration=first[aout]'
 
-        cmd = [
+        # Compress the video using H.264 codec and set a specific bitrate
+        cmd_compress = [
             'ffmpeg',
             '-i', video_filename,
+            '-c:v', 'libx264',          # Video codec
+            '-b:v', '512K',             # Target video bitrate (adjust as needed)
+            '-preset', 'ultrafast',     # Faster compression
+            '-strict', 'experimental',  # Needed for AAC audio codec
+            '-y',
+            'compressed_video.mp4'     # Output compressed video
+        ]
+
+        subprocess.run(cmd_compress, check=True)
+
+        cmd = [
+            'ffmpeg',
+            '-i', 'compressed_video.mp4',
             *audio_inputs.split(),
             '-filter_complex', filter_complex,
             '-map', '0:v:0',
@@ -65,22 +85,39 @@ def merge_audio_video():
         print(cmd)
         subprocess.run(cmd, check=True)
 
-        # Return the merged video file as a response
-        with open(output_filename, 'rb') as video_file:
-            response = Response(video_file.read(), content_type='video/mp4')
-
-        response.headers['Content-Disposition'] = 'inline; filename=output.mp4'
-
         # Clean up temporary files and directory
         for i in range(len(request.files.getlist('audio'))):
             os.remove(os.path.join(temp_dir, f'audio_{i}.m4a'))
         os.rmdir(temp_dir)
 
+        video_url = upload_to_firebase('output.mp4')
+        print(video_url)
+
+        os.remove('compressed_video.mp4')
         os.remove('output.mp4')
         os.remove('video.mp4')
 
-        return response
+        return convert_to_json_resp({'url': video_url})
 
 
     except Exception as e:
+        print(e)
         return convert_to_json_resp({"error": str(e)}), 500
+    
+
+def upload_to_firebase(filename):
+    # Initialize Firebase Admin SDK with your service account key
+    bucket = storage.bucket()
+
+    # Upload the merged video to Firebase Storage
+    blob = bucket.blob(f'videos/interview/{str(uuid.uuid4())}')
+    blob.upload_from_filename(filename)
+
+    # Generate a signed URL for the uploaded video
+    video_url = blob.generate_signed_url(
+        version="v4",
+        expiration=datetime.timedelta(minutes=60),  # Adjust the expiration as needed
+        method="GET"
+    )
+
+    return video_url

@@ -42,7 +42,7 @@ def merge_audio_video():
         filter_complex_str = ''
         audio_inputs = ''
         for i, audio_file in enumerate(request.files.getlist('audio')):
-            audio_filename = os.path.join(temp_dir, f'audio_{i}.m4a')
+            audio_filename = os.path.join(temp_dir, f'audio_{i}.opus')
             audio_file.save(audio_filename)
 
             print(audio_filename)
@@ -73,7 +73,7 @@ def merge_audio_video():
 
         # Clean up temporary files and directory
         for i in range(len(request.files.getlist('audio'))):
-            os.remove(os.path.join(temp_dir, f'audio_{i}.m4a'))
+            os.remove(os.path.join(temp_dir, f'audio_{i}.opus'))
         os.rmdir(temp_dir)
 
         merged_audio_url = upload_to_firebase(output_filename)

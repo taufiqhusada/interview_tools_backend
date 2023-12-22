@@ -113,7 +113,8 @@ def generate_tts(text):
         tts_response = openai.audio.speech.create(
             model="tts-1",
             voice="alloy",
-            input=text
+            input=text,
+            response_format="opus"
         )
     
         return tts_response.content

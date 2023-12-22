@@ -35,5 +35,5 @@ def do_conversation():
         temperature=0,
     )
 
-    response = response["choices"][0]["message"]["content"]
+    response = response.choices[0].message.content
     return convert_to_json_resp(response)

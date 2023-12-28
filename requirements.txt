@@ -1,4 +1,4 @@
-'flask[async]'
+flask[async]
 openai==1.6.0
 flask_cors
 mongoengine

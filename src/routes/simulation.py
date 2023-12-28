@@ -79,7 +79,7 @@ async def generate_gpt_response():
         transcript = request.json['transcript']
         instruction = request.json['instruction']
 
-        messages = [{'role': item['speaker'].lower(), 'content': item['text']} for item in transcript]
+        messages = [{'role': item['speaker'], 'content': item['text']} for item in transcript]
 
         identification = {
             "quality": None,

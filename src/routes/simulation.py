@@ -93,7 +93,7 @@ async def generate_gpt_response():
                     break
                 i-=1
 
-            print(messages[i:len(messages)-1])
+            # print(messages[i:len(messages)-1])
             identification['timeOffset_start'] = transcript[i]["timeOffset"]
             identification_task = asyncio.create_task(process_get_moments(messages[i:len(messages)]))
             

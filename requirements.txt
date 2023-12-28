@@ -1,4 +1,4 @@
-Flask==2.2.2
+'flask[async]'
 openai==1.6.0
 flask_cors
 mongoengine

@@ -3,6 +3,8 @@ from config.openai_connector import init_openai_config
 import base64
 import os
 from pathlib import Path
+from routes.moment_identification import process_get_moments
+import asyncio
 
 simulation_bp = Blueprint('simulation', __name__)
 
@@ -71,19 +73,37 @@ def srt_time_to_seconds(srt_time):
     return total_seconds
 
 @simulation_bp.route('/simulation/response', methods=['POST'])
-def generate_gpt_response():
+async def generate_gpt_response():
     try:
         # Get the transcript and instruction from the request
         transcript = request.json['transcript']
         instruction = request.json['instruction']
 
         messages = [{'role': item['speaker'].lower(), 'content': item['text']} for item in transcript]
+
+        identification = {
+            "quality": None,
+            "timeOffset_start": None,
+        }
+        identification_task = None
+        if (len(messages) > 0):
+            i = len(messages) - 1
+            while(i >= 0):
+                if (messages[i]['role'] == 'assistant'):
+                    break
+                i-=1
+
+            print(messages[i:len(messages)-1])
+            identification['timeOffset_start'] = transcript[i]["timeOffset"]
+            identification_task = asyncio.create_task(process_get_moments(messages[i:len(messages)]))
+            
         messages.append({'role': 'system', 'content': instruction})
 
         # Define the request payload
         data = {
-            'model': 'gpt-3.5-turbo',
+            'model': 'gpt-3.5-turbo-1106',
             'messages': messages,
+            'temperature': 1,
         }
 
         openai = init_openai_config()
@@ -95,8 +115,11 @@ def generate_gpt_response():
             gpt_response = response.choices[0].message.content
             tts_audio = generate_tts(gpt_response)
             audio_base64 = base64.b64encode(tts_audio).decode('utf-8')
+            
+            if identification_task:
+                identification['quality'] = await identification_task
 
-            return jsonify({'audio_data': audio_base64,'text_response': gpt_response})
+            return jsonify({'audio_data': audio_base64,'text_response': gpt_response, 'identification': identification})
         else:
             return jsonify({'error': 'Failed to generate GPT response'})
 

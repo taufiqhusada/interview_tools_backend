@@ -20,7 +20,8 @@ def get_all_data(sessionID):
         return jsonify({
             'interview': interview,
             'annotation': annotation,
-            'transcript': transcript.transcript
+            'transcript': transcript.transcript,
+            'identifiedMoments': transcript.identifiedMoments,
         }), 200
     else:
         return jsonify({'error': 'Data not found'}), 404

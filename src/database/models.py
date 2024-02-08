@@ -28,3 +28,4 @@ class InterviewAnnotation(db.Document):
 class InterviewTranscript(db.Document):
     sessionID = db.StringField(required=True, unique=True)
     transcript = db.DynamicField()
+    identifiedMoments = db.DynamicField()

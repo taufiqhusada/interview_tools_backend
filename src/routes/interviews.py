@@ -2,6 +2,7 @@
 from flask import Blueprint, request, jsonify
 from database.models import Interview, InterviewTranscript
 from util.response import  convert_to_json_resp
+from util.jwt import generate_jwt_token
 
 interviews_bp = Blueprint('interviews', __name__)
 
@@ -20,7 +21,11 @@ def create_interview():
     data = request.json
     interview = Interview(**data)
     interview.save()
-    return convert_to_json_resp({'message': 'Interview created', 'id': str(interview.id), 'sessionID': interview.sessionID})
+
+    token = generate_jwt_token({
+        'sessionID': interview.sessionID
+    })
+    return convert_to_json_resp({'message': 'Interview created', 'token': token})
     
 @interviews_bp.route('/interviews/<id>', methods=['PUT'])
 def update_interview(id):
@@ -40,4 +45,4 @@ def create_interview_transcript():
     data = request.json
     interview = InterviewTranscript(**data)
     interview.save()
-    return convert_to_json_resp({'message': 'Interview trasncript created', 'id': str(interview.id), 'sessionID': interview.sessionID})
+    return convert_to_json_resp({'message': 'Interview trasncript created'})

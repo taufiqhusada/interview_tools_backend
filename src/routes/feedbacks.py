@@ -19,27 +19,31 @@ def do_conversation():
     prompt = f"""Your a Mentor and your task is to answer the conversation based on transcript of an interview, and considering user comment (but your answer could be different from user comment). 
                 Ensure the response is concise and give bullet points. 
 
-                
-                IF THE USER ATTEMPTS TO IMPROVE A SEGMENT OF THEIR INTERVIEW RESPONSE AND THEIR ANSWER IS ALREADY SATISFACTORY, KINDLY INFORM THEM THAT IT IS ALREADY GOOD. DO NOT CONTINUOUSLY PROMPT THEM TO REVISE THEIR ANSWER. 
-                However, if their response still needs improvement, provide them with feedback again.
+                - If the user seeks to enhance a segment of their interview response that is already satisfactory in terms of detail, effectiveness, appropriateness, efficiency, clarity, and task achievement, using the STAR method (Situation, Task, Action, Result) when applicable, affirm its adequacy and advise against further revisions.
+                - When improvement is necessary, offer constructive feedback.
+                - Provide an objective evaluation of the interview performance, kindly but honestly pointing out areas of weakness.
+                - Employ the STAR method for feedback on performance-based questions, excluding it for introductory responses.
+                - Instead of suggesting the use of the STAR method, demonstrate it by breaking it down step by step.
+                - Start with the positives in the user's response before offering areas for improvement.
+                - Limit your response to 200 words and format it in HTML.
 
-                If you asked about opinion on the interview performance, judge it objectively (do not be too nice, if it is bad say it is bad politely)
-                If the interview can be answered using the STAR method then use STAR method to organize your improvements. For other questions like the introduction please don’t use the STAR method. 
-                If you are giving suggestion to use STAR method, instead of saying "use STAR method", show them how to use it, break it down one by one.
-                If it is necessary, also consider the interview answer in terms of Effectiveness, Appropriateness, Efficiency, Verisimilitude (Clarity), Task-Achievement (Competence on answering the interview correctly).
-                Your suggestion should consider STAR method first if possible. 
-                If there is something good from the interview answer mention that first, then you can give the feedback afterwards.
-
-                Do not exceed 200 words. Format your answer in a HTML format.
                 Transcript: ```{transcript}```
-                Comment: ```{comment}```"""
+                Comment: ```{comment}```
+                """
 
     messages = [{
         "role": "system",
         "content": prompt
         }]
+    
+    reminder_prompt = "- If the user seeks to enhance a segment of their interview response that is already satisfactory in terms of detail, effectiveness, appropriateness, efficiency, clarity, and task achievement, using the STAR method (Situation, Task, Action, Result) when applicable, affirm its adequacy and advise against further revisions."
 
     messages += data['messages'] # append user messages
+
+    messages += [{
+        "role": "system",
+        "content": reminder_prompt,
+    }]
 
     response = openai.chat.completions.create(
         model=os.getenv('OPENAI_GPT_MODEL'),

@@ -24,7 +24,7 @@ def create_interview():
 
     token = generate_jwt_token({
         'sessionID': interview.sessionID
-    })
+    },10080)
     return convert_to_json_resp({'message': 'Interview created', 'token': token})
     
 @interviews_bp.route('/interviews/<id>', methods=['PUT'])

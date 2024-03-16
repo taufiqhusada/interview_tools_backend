@@ -101,7 +101,7 @@ def upload_to_firebase(filename):
     # Generate a signed URL for the uploaded video
     video_url = blob.generate_signed_url(
         version="v4",
-        expiration=datetime.timedelta(minutes=120),  # Adjust the expiration as needed
+        expiration=datetime.timedelta(seconds=604800), 
         method="GET"
     )
 
